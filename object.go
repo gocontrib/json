@@ -53,9 +53,9 @@ func (o *Object) Get(name string) interface{} {
 		return nil
 	}
 
-	val, ok := v.(Value)
+	a, ok := v.(Atom)
 	if ok {
-		return val.data
+		return a.data
 	}
 
 	return v
