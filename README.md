@@ -1,4 +1,4 @@
-# json
+# json [![Build Status](https://drone.io/github.com/gocontrib/json/status.png)](https://drone.io/github.com/gocontrib/json/latest)
 
 Untyped JSON API
 
