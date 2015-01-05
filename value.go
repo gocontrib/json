@@ -50,7 +50,7 @@ func Stringify(v interface{}, pretty ...bool) string {
 	return string(s)
 }
 
-// NewDecoder creates encoder from given input
+// NewDecoder creates json.Decoder from given input
 func NewDecoder(i interface{}) (*json.Decoder, error) {
 	reader, ok := i.(io.Reader)
 	if ok {
