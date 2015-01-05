@@ -1,20 +1,6 @@
 package json
 
-import (
-	"encoding/json"
-	"errors"
-	"io"
-	"net/http"
-	"strings"
-)
-
-// Token interfaces JSON types
-type Token interface {
-	// JSON string
-	JSON(pretty ...bool) string
-	// WriteJSON writes JSON string to given output
-	WriteJSON(output io.Writer, pretty ...bool)
-}
+import "io"
 
 // Object is generic JSON object
 type Object struct {
@@ -35,7 +21,7 @@ func NewObject(data map[string]interface{}) *Object {
 func ParseObject(input interface{}) (*Object, error) {
 	obj := NewObject(nil)
 
-	dec, err := decoder(input)
+	dec, err := NewDecoder(input)
 	if err != nil {
 		return nil, err
 	}
@@ -66,16 +52,21 @@ func (o *Object) Get(name string) string {
 	return s
 }
 
-// TODO get, set API
+// Set sets given property
+func (o *Object) Set(name string, val interface{}) {
+	o.data[name] = val
+}
+
+// Del removes specified property
+func (o *Object) Del(name string) {
+	delete(o.data, name)
+}
+
+// TODO more api (GetInt, GetFloat, etc)
 
 // JSON returns JSON string
 func (o *Object) JSON(pretty ...bool) string {
-	if len(pretty) > 0 && pretty[0] {
-		s, _ := json.MarshalIndent(&o.data, "", "  ")
-		return string(s)
-	}
-	s, _ := json.Marshal(&o.data)
-	return string(s)
+	return Stringify(&o.data, pretty...)
 }
 
 // WriteJSON writes JSON string to given output
@@ -83,20 +74,7 @@ func (o *Object) WriteJSON(w io.Writer, pretty ...bool) {
 	w.Write([]byte(o.JSON(pretty...)))
 }
 
-func decoder(i interface{}) (*json.Decoder, error) {
-	reader, ok := i.(io.Reader)
-	if ok {
-		return json.NewDecoder(reader), nil
-	}
-
-	switch i.(type) {
-	case string:
-		s := i.(string)
-		return json.NewDecoder(strings.NewReader(s)), nil
-	case *http.Request:
-		req := i.(*http.Request)
-		return json.NewDecoder(req.Body), nil
-	default:
-		return nil, errors.New("invalid input")
-	}
+// MarshalJSON implements json.Marshaler
+func (o *Object) MarshalJSON() ([]byte, error) {
+	return []byte(o.JSON()), nil
 }

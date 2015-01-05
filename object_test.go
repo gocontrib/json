@@ -41,4 +41,18 @@ var _ = Describe("Object", func() {
 		Expect(err).NotTo(BeNil())
 		Expect(o).To(BeNil())
 	})
+
+	It("JSON string", func() {
+		o := NewObject(map[string]interface{}{
+			"user": "bob",
+		})
+		Expect(o.JSON()).To(Equal(`{"user":"bob"}`))
+	})
+
+	It("JSON pretty string", func() {
+		o := NewObject(map[string]interface{}{
+			"user": "bob",
+		})
+		Expect(o.JSON(true)).To(Equal("{\n  \"user\": \"bob\"\n}"))
+	})
 })
