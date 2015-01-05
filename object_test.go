@@ -16,7 +16,7 @@ var _ = Describe("Object", func() {
 		Expect(o).NotTo(BeNil())
 		Expect(err).To(BeNil())
 		Expect(o.NumProperties()).To(Equal(1))
-		Expect(o.Get("user")).To(Equal("bob"))
+		Expect(o.Gets("user")).To(Equal("bob"))
 	}
 
 	It("should be parsed from valid JSON string", func() {

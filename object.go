@@ -1,6 +1,13 @@
 package json
 
-import "io"
+import (
+	"errors"
+	"io"
+)
+
+var (
+	errNoProperty = errors.New("property not exist")
+)
 
 // Object is generic JSON object
 type Object struct {
@@ -39,10 +46,25 @@ func (o *Object) NumProperties() int {
 	return len(o.data)
 }
 
-// Get gets string property, returns empty string if property does not exist
-func (o *Object) Get(name string) string {
+// Get property value
+func (o *Object) Get(name string) interface{} {
 	v, ok := o.data[name]
 	if !ok {
+		return nil
+	}
+
+	val, ok := v.(Value)
+	if ok {
+		return val.data
+	}
+
+	return v
+}
+
+// Gets string property, returns empty string if property does not exist
+func (o *Object) Gets(name string) string {
+	v := o.Get(name)
+	if v == nil {
 		return ""
 	}
 	s, ok := v.(string)
@@ -62,7 +84,50 @@ func (o *Object) Del(name string) {
 	delete(o.data, name)
 }
 
-// TODO more api (GetInt, GetFloat, etc)
+// Bool gets bool property.
+func (o *Object) Bool(name string) (bool, error) {
+	v := o.Get(name)
+	if s, ok := v.(bool); ok {
+		return s, nil
+	}
+	return false, errors.New("type assertion to bool failed")
+}
+
+// Int gets int property
+func (o *Object) Int(name string) (int, error) {
+	v := o.Get(name)
+	if v == nil {
+		return 0, errNoProperty
+	}
+	return toInt(v)
+}
+
+// Int64 gets int64 property
+func (o *Object) Int64(name string) (int64, error) {
+	v := o.Get(name)
+	if v == nil {
+		return 0, errNoProperty
+	}
+	return toInt64(v)
+}
+
+// Uint64 gets uint64 property
+func (o *Object) Uint64(name string) (uint64, error) {
+	v := o.Get(name)
+	if v == nil {
+		return 0, errNoProperty
+	}
+	return toUint64(v)
+}
+
+// Float64 gets float64 property
+func (o *Object) Float64(name string) (float64, error) {
+	v := o.Get(name)
+	if v == nil {
+		return 0, errNoProperty
+	}
+	return toFloat64(v)
+}
 
 // JSON returns JSON string
 func (o *Object) JSON(pretty ...bool) string {
